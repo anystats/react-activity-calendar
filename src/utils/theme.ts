@@ -18,6 +18,7 @@ export function createTheme(theme?: ThemeInput): Theme {
     return {
       light: isColorScale(theme.light) ? theme.light : createColorScale(theme.light),
       dark: isColorScale(theme.dark) ? theme.dark : createColorScale(theme.dark),
+      layers: theme.layers,
     };
   }
 
@@ -47,6 +48,14 @@ function validateTheme(theme: ThemeInput) {
         `theme.dark must contain exactly 2 or ${LEVEL_COUNT} colors, ${length as number} passed.`,
       );
     }
+  }
+
+  if (theme.layers) {
+    Object.values(theme.layers).forEach(c => {
+      if (!chroma.valid(c)) {
+        throw new Error(`theme.layers has invalid color ${c}`);
+      }
+    });
   }
 }
 

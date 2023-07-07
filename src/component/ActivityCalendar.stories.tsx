@@ -425,7 +425,35 @@ export const EventHandlers: Story = {
   },
 };
 
-function generateData(monthStart = 0, monthEnd = 11): Array<Activity> {
+const layerTheme = Object.assign({}, explicitTheme);
+layerTheme.layers = {
+  layer_0: '#39d353',
+  layer_1: '#2a2b59',
+};
+
+const layerLabels = {
+  ...labels,
+  totalCount: '{{count}} activities on 2 platform in {{year}}'
+}
+
+export const WithLayers: Story = {
+  args: {
+    data: generateData(0, 11, 2),
+    labels: layerLabels,
+    theme: layerTheme,
+  },
+};
+
+export const WithLoadingLayers: Story = {
+  args: {
+    loading: true,
+    data: generateData(0, 11, 2),
+    labels,
+    theme: layerTheme,
+  },
+};
+
+function generateData(monthStart = 0, monthEnd = 11, layer = 0): Array<Activity> {
   const MAX = 10;
 
   const yearStart = new Date().getFullYear();
@@ -440,10 +468,24 @@ function generateData(monthStart = 0, monthEnd = 11): Array<Activity> {
     const count = Math.max(0, Math.round(Math.random() * MAX - Math.random() * (0.8 * MAX)));
     const level = Math.ceil(count / (MAX / (LEVEL_COUNT - 1))) as Level;
 
+    const layers = Array(layer)
+      .fill(0)
+      .reduce((prev, curr, idx) => {
+        if (!prev) {
+          prev = {};
+        }
+        prev[`layer_${idx}`] = Math.max(
+          0,
+          Math.round(Math.random() * MAX - Math.random() * (0.8 * MAX)),
+        );
+        return prev;
+      }, undefined);
+
     return {
       date: formatISO(date, { representation: 'date' }),
       count,
       level,
+      layers,
     };
   });
 }
